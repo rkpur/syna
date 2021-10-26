@@ -1,0 +1,22 @@
+{
+	"name": "DestinationDataset_z5u",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "synp-test1-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "test-delta",
+				"folderPath": "target",
+				"fileSystem": "dlsfssynap1"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
