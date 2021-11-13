@@ -2,7 +2,7 @@
 	"name": "jsonArray",
 	"properties": {
 		"content": {
-			"query": "DECLARE @jsonStr VARCHAR(MAX);\nDECLARE @langStr VARCHAR(MAX);\nSELECT @jsonStr=\n     JSON_QUERY(jsonContent, '$.Results') \n     FROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211001000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result]\n    ;\nSELECT * FROM  \n OPENJSON ( @jsonStr )  \nWITH (   \n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LangArr nvarchar(MAX) N'$' AS JSON  \n )     \n\n",
+			"query": "DECLARE @jsonStr VARCHAR(MAX);\nDECLARE @langStr VARCHAR(MAX);\nSELECT @jsonStr=\n     JSON_QUERY(jsonContent, '$.Results') \n     FROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211001000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result]\n    ;\n     with cte1 AS (\nSELECT * FROM  \n OPENJSON ( @jsonStr )  \nWITH (   \n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LanguageSet nvarchar(MAX) N'$.LanguageSet' AS JSON  ,\n              LicenseSet nvarchar(MAX) N'$.LicenseSet' AS JSON  \n )     \n    )\nSELECT *\nFROM cte1",
 			"metadata": {
 				"language": "sql"
 			},
