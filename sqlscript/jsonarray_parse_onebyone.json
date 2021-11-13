@@ -1,0 +1,17 @@
+{
+	"name": "jsonarray_parse_onebyone",
+	"properties": {
+		"content": {
+			"query": "DECLARE @id INT = 0;\nDECLARE @maxid INT;\nDECLARE @jsonStr VARCHAR(MAX);\nDECLARE @col NVARCHAR(100);\n\nSELECT   @maxid= CASE WHEN JSON_VALUE (jsonContent, '$.PageSize') > JSON_VALUE (jsonContent, '$.TotalRecordCount') THEN  JSON_VALUE (jsonContent, '$.PageSize')\n        ELSE JSON_VALUE (jsonContent, '$.TotalRecordCount') \n        END \nFROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20210401000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result];\n\nWHILE @id <= @maxid\nBEGIN\nSET @col = N'lax $.Results[' + CAST(@id AS NVARCHAR(50)) + N']';\n    SELECT @jsonStr= JSON_QUERY( jsonContent, @col)\nFROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20210401000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result];\n\n    SET @id = @id + 1;\nSELECT JSON_VALUE(@jsonStr, '$.AgentNumber');\nEND",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
