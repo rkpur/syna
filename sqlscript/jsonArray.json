@@ -1,8 +1,8 @@
 {
-	"name": "SQL script 3",
+	"name": "jsonArray",
 	"properties": {
 		"content": {
-			"query": "/*\nDECLARE @jsonStr VARCHAR(MAX);\nSELECT @jsonStr=\n     JSON_QUERY(jsonContent, '$.Results') \n     FROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211001000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result]\n    ;\nSELECT * FROM  \n OPENJSON ( @jsonStr )  \nWITH (   \n              AgentNumber   varchar(200) '$.AgentNumber'  \n )     \n\n */\nWITH cte_1 AS\n(\nSELECT JSON_QUERY(jsonContent, '$.Results')  AS arry1\nFROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211001000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    )\n) \nSELECT * FROM  \n OPENJSON ( cte_1.arry1 )  \nWITH (   \n              AgentNumber   varchar(200) '$.AgentNumber'  \n )  \n",
+			"query": "DECLARE @jsonStr VARCHAR(MAX);\nDECLARE @langStr VARCHAR(MAX);\nSELECT @jsonStr=\n     JSON_QUERY(jsonContent, '$.Results') \n     FROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211001000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result]\n    ;\nSELECT * FROM  \n OPENJSON ( @jsonStr )  \nWITH (   \n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LangArr nvarchar(MAX) N'$' AS JSON  \n )     \n\n",
 			"metadata": {
 				"language": "sql"
 			},
