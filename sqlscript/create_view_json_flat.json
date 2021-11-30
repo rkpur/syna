@@ -1,13 +1,13 @@
 {
-	"name": "SQL script 1",
+	"name": "create_view_json_flat",
 	"properties": {
 		"content": {
-			"query": "-- This is auto-generated code\nSELECT *\nFROM\n    OPENROWSET(\n        BULK 'https://dlssynap1.dfs.core.windows.net/dlsfssynap1/target2',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n",
+			"query": "create DATABASE test\n\nUSE TEST\ngo\nCREATE SCHEMA Staging\n\n---------------------------------\ncreate or alter view Staging.vw_Agent as(\nselect\n   Agents.AgentNumber\nfrom openrowset(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211111000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    ) with (doc nvarchar(max)) as rows\n    cross apply openjson (doc)\n        with (  Results nvarchar(max) AS JSON ) As Results\nOUTER APPLY OPENJSON(Results)--, '$.LicenseNumber')   \n     WITH (\n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LanguageSet nvarchar(MAX) N'$.LanguageSet' AS JSON  ,\n              LicenseSet nvarchar(MAX) N'$.LicenseSet' AS JSON           \n     ) AS Agents\n)\nGO\n----\ncreate or alter view Staging.vw_AgentLicense as(\nselect\n   Agents.AgentNumber, LicenseSet.LicensePCNumber ,  LicenseSet.PrimaryLic\nfrom openrowset(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211111000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    ) with (doc nvarchar(max)) as rows\n    cross apply openjson (doc)\n        with (  Results nvarchar(max) AS JSON ) As Results\nOUTER APPLY OPENJSON(Results)--, '$.LicenseNumber')   \n     WITH (\n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LanguageSet nvarchar(MAX) N'$.LanguageSet' AS JSON  ,\n              LicenseSet nvarchar(MAX) N'$.LicenseSet' AS JSON           \n     ) AS Agents        \nOUTER APPLY OPENJSON(Agents.LicenseSet)--, '$.LicenseNumber')   \n     WITH (LicensePCNumber VARCHAR(500)  '$.LicensePCNumber',\n            PrimaryLic VARCHAR(500)  '$.PrimaryLicense'\n     ) AS LicenseSet\n)\nGO\n----\n\ncreate or alter view Staging.vw_AgentLanguage as(\nselect\n   Agents.AgentNumber, LanguageSet.Language\nfrom openrowset(\n        BULK 'https://dlssynap1.dfs.core.windows.net/lf-data/calisto/agent/AgentData_20211111000000.JSON',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    ) with (doc nvarchar(max)) as rows\n    cross apply openjson (doc)\n        with (  Results nvarchar(max) AS JSON ) As Results\nOUTER APPLY OPENJSON(Results)--, '$.LicenseNumber')   \n     WITH (\n              AgentNumber   varchar(200) '$.AgentNumber'  ,\n              LanguageSet nvarchar(MAX) N'$.LanguageSet' AS JSON  ,\n              LicenseSet nvarchar(MAX) N'$.LicenseSet' AS JSON           \n     ) AS Agents        \nOUTER APPLY OPENJSON(Agents.LanguageSet)--, '$.LicenseNumber')   \n     WITH (Language VARCHAR(500)  '$.Language' ) AS LanguageSet     \n)\nGO",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "master",
+				"databaseName": "test",
 				"poolName": "Built-in"
 			},
 			"resultLimit": -1
